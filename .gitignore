@@ -11,6 +11,7 @@ codebuild_build.sh
 
 __pycache__
 *.json
+!env-vars.json
 junk
 pack
 dist
