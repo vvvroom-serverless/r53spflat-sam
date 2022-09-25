@@ -64,7 +64,7 @@ class SpfHelper:
             input_records,
             dns_servers,
             update=False,
-            lastresult=None,
+            last_result=None,
             force_update=False,
             slack=False
     ):
@@ -72,16 +72,16 @@ class SpfHelper:
         if dns_servers:
             resolver.nameservers = dns_servers
 
-        if lastresult is None:
-            lastresult = dict()
+        if last_result is None:
+            last_result = dict()
 
         current = dict()
         for domain, spf_targets in input_records.items():
             records = spf2ips(spf_targets, domain, resolver)
             hashsum = sequence_hash(records)
             current[domain] = {"sum": hashsum, "records": records}
-            if lastresult.get(domain, False) and current.get(domain, False):
-                previous_sum = lastresult[domain]["sum"]
+            if last_result.get(domain, False) and current.get(domain, False):
+                previous_sum = last_result[domain]["sum"]
                 current_sum = current[domain]["sum"]
                 mismatch = previous_sum != current_sum
                 if mismatch:
@@ -111,4 +111,4 @@ class SpfHelper:
                         else:
                             self.log_and_slack(f'Failed!\n\n********** WARNING: Update of {recname} TXT record Failed')
 
-        return current if update or force_update or len(lastresult) == 0 else lastresult
+        return current if update or force_update or len(last_result) == 0 else last_result

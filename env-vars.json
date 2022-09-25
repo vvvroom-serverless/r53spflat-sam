@@ -1,6 +1,6 @@
 {
   "Parameters": {
-    "BUCKET": "s3-bucket-name",
-    "WEBHOOK_URL": "https://hooks.slack.com/services/XXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    "BUCKET_NAME": "s3-bucket-name",
+    "SLACK_WEBHOOK_URL": "https://hooks.slack.com/services/XXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
   }
 }

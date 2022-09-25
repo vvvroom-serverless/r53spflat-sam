@@ -37,10 +37,11 @@ def main() -> int:
 
     to_slack = args.slack
     if to_slack:
-        logger.info('To Slack: ' + str(logger))
+        logger.info('To Slack: ' + str(to_slack))
 
     slack_webhook = args.slack_webhook
     if slack_webhook:
+        to_slack = True
         logger.info('Slack Webhook: ' + slack_webhook)
 
     update_records = args.update
@@ -66,6 +67,7 @@ def main() -> int:
         basename = os.path.basename(file_key)
         filename, ext = os.path.splitext(basename)
         if ext == '.json':
+            previous_result = None
             previous_path = os.path.join(RESULTS_FOLDER, filename + '_results.json')
             if os.path.exists(previous_path):
                 with open(previous_path) as prev_hashes:
@@ -78,9 +80,10 @@ def main() -> int:
             resolvers = settings.get("resolvers", [])
             domains = settings.get("sending_domains", [])
 
+            logger.info(settings)
             spf = spf_helper.flatten(
                 input_records=domains,
-                lastresult=previous_result,
+                last_result=previous_result,
                 dns_servers=resolvers,
                 update=update_records,
                 force_update=force_mode,
