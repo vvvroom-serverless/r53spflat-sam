@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-r53spflat-lambda
+
+  Sample SAM Template for sam-r53spflat-lambda
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 45
+
+Parameters:
+  SlackWebHookUrl:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /Test/r53spflat/SLACK_WEBHOOK_URL
+  SpfConfigBucketName:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /Test/r53spflat/BUCKET_NAME
+
+Resources:
+  R53SpflatProcessFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: r53spflat/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      ReservedConcurrentExecutions: 3
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          SLACK_WEBHOOK_URL: !Ref SlackWebHookUrl
+          BUCKET_NAME: !Ref SpfConfigBucketName
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref SpfConfigBucketName
+
+Outputs:
+  R53SpflatProcessFunction:
+    Description: "Process R53SPF Flatten Lambda Function ARN"
+    Value: !GetAtt R53SpflatProcessFunction.Arn
