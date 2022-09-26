@@ -6,7 +6,8 @@ import tempfile
 import argparse
 import ssl
 import boto3
-from helper import FileHelper, SpfHelper
+from helper import FileHelper, SpfHelper, S3Helper
+from app import process_flattening
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -56,42 +57,7 @@ def main() -> int:
     RESULTS_FOLDER = args.output
     logger.info('Output: ' + RESULTS_FOLDER)
 
-    spf_helper = SpfHelper(slack_webhook=slack_webhook)
-    s3_client = boto3.client('s3')
-
-    result = s3_client.list_objects_v2(Bucket=BUCKET, Prefix=SpfHelper.SPF_CONFIGS_FOLDER + '/')
-    files = result.get('Contents')
-    for file in files:
-        file_key = file['Key']
-        file_size = file['Size']
-        basename = os.path.basename(file_key)
-        filename, ext = os.path.splitext(basename)
-        if ext == '.json':
-            previous_result = None
-            previous_path = os.path.join(RESULTS_FOLDER, filename + '_results.json')
-            if os.path.exists(previous_path):
-                with open(previous_path) as prev_hashes:
-                    previous_result = json.load(prev_hashes)
-
-            data = s3_client.get_object(Bucket=BUCKET, Key=file_key)
-            json_str = data['Body'].read().decode('utf-8')
-            settings = json.loads(json_str)
-
-            resolvers = settings.get("resolvers", [])
-            domains = settings.get("sending_domains", [])
-
-            logger.info(settings)
-            spf = spf_helper.flatten(
-                input_records=domains,
-                last_result=previous_result,
-                dns_servers=resolvers,
-                update=update_records,
-                force_update=force_mode,
-                slack=to_slack
-            )
-
-            with open(previous_path, "w+") as f:
-                json.dump(spf, f, indent=4, sort_keys=True)
+    process_flattening(BUCKET, slack_webhook=slack_webhook, update=update_records, force=force_mode)
 
     return 0
 

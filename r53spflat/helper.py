@@ -16,9 +16,37 @@ from sender_policy_flattener.formatting import sequence_hash
 from sender_policy_flattener.email_utils import email_changes
 from r53_dns import TXTrec
 from slack_sdk.webhook import WebhookClient
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+
+class S3Helper:
+    @staticmethod
+    def get_contents(bucket, key):
+        s3_client = boto3.client('s3')
+
+        contents = None
+
+        try:
+            data = s3_client.get_object(Bucket=bucket, Key=key)
+            contents = data['Body'].read().decode('utf-8')
+        except ClientError:
+            pass
+
+        return contents
+
+    @staticmethod
+    def set_contents(bucket, key, contents):
+        s3_client = boto3.client('s3')
+
+        try:
+            s3_client.put_object(Body=contents, Bucket=bucket, Key=key)
+        except ClientError:
+            return False
+
+        return True
 
 
 class FileHelper:
@@ -36,8 +64,10 @@ class FileHelper:
 
 
 class SpfHelper:
-    SPF_CONFIGS_FOLDER = 'spf_configs'
+    SPF_CONFIGS_FOLDER = 'r53spflat'
     CONFIGS_FOLDER = 'configs'
+    SPF_FILE_PREFIX = 'spfs-'
+    MONITOR_SUMS_PREFIX = 'monitor_sums-'
 
     def __init__(self, slack_webhook):
         self.slack_webhook = slack_webhook
