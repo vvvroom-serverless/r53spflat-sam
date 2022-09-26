@@ -17,6 +17,9 @@ Parameters:
   SpfConfigBucketName:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /Test/r53spflat/BUCKET_NAME
+  HostedZoneId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /Test/r53spflat/HOSTED_ZONE_ID
 
 Resources:
   R53SpflatProcessFunction:
@@ -35,6 +38,10 @@ Resources:
       Policies:
         - S3ReadPolicy:
             BucketName: !Ref SpfConfigBucketName
+        - S3WritePolicy:
+            BucketName: !Ref SpfConfigBucketName
+        - Route53ChangeResourceRecordSetsPolicy:
+            HostedZoneId: !Ref HostedZoneId
 
 Outputs:
   R53SpflatProcessFunction:

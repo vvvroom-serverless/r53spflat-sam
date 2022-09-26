@@ -4,7 +4,7 @@ export
 current_dir = $(shell pwd)
 base_dir = $(shell basename "$(current_dir)")
 
-sync-config:
+sync-config-up:
 	aws s3 sync ./r53spflat/configs s3://$(BUCKET)/r53spflat --exclude "*" --include "*.json" --profile $(AWS_PROFILE)
 
 sync-config-down:

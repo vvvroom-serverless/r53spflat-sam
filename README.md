@@ -33,4 +33,5 @@ AWS_PROFILE=$(AWS_PROFILE); ./venv/bin/python r53spflat/cli.py --bucket $(BUCKET
 ```
 aws ssm put-parameter --name "/Test/r53spflat/BUCKET_NAME" --type "String" --value "xxxxxxxx"
 aws ssm put-parameter --name "/Test/r53spflat/SLACK_WEBHOOK_URL" --type "String" --value "https://hooks.slack.com/services/XXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+aws ssm put-parameter --name "/Test/r53spflat/HOSTED_ZONE_ID" --type "String" --value "XXXXXXXXXXXXX"
 ```
